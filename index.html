@@ -110,7 +110,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=num
 <div id="bar"><button id="qc" onclick="pick()">اختر بند الصرف</button></div>
 <nav id="tb"></nav>
 <div id="sh" class="hide" onclick="if(event.target===this)closeS()"><div id="sb"></div></div>
-<div id="ck" class="hide" onclick="if(event.target===this)this.classList.add('hide')"><div id="cb"></div></div>
+<div id="ck" class="hide" onclick="if(event.target===this&&Date.now()-ckT>350)this.classList.add('hide')"><div id="cb"></div></div>
 <div id="lk" class="hide"><b style="font-size:20px">أدخل الرمز السري</b><input id="lp" type="password" inputmode="numeric" maxlength="4" oninput="if(this.value.length===4)unl()"><small id="le" class="exp"></small></div>
 <script>
 let CATS={"الأبناء":["مستلزمات المدرسة","اطباء وعلاج","مصروف وحلويات","باص المدسه","اشتركات رياضيه","ملابس واحذيه","كورسات","ألعاب وملاهى","حلاق","اعياد ميلاد","مستلزمات تجميل","المصروفات الدراسيه","دروس يوسف","تليفون","موبيل"],
@@ -125,7 +125,7 @@ let CATS={"الأبناء":["مستلزمات المدرسة","اطباء وعل
 const ICO={"الأبناء":"🧒","البيت":"🛒","المصاريف البنكيه":"🏦","النقطه":"📍","أنا":"👤","خيري":"🤲","سيارة":"🚗","م. المدام":"👩","مناسبات الالسن":"🎉","مناسبات وزيارات":"🎁"};
 let INC=["راتب الالسن","اضافى الالسن","بونص الالسن","الفوائد NBE","اتعاب VAT الترا","اتعاب مرتبات الترا","اتعاب VAT CSC","راتب CSC","الايجار","اتعاب DYK","اتعاب ALAYAD","اتعاب LOGICAL","اتعاب ASTRA","اتعاب المكتب","اتعاب مصطفى","امى"];
 const WAL=["Wallet","Home","NBE","HSBC","THNDR","Alsson Birthdays","Ramy","Alayad","CSC & Ultra Teb","Monthly Rent","Ahmed 10 & Mostafa Hendawy 3,5","Rent Insurance","CASH BACK 3858","HSBC VISA 4286","Deposits NBE"];
-let CK=Object.keys(CATS);const $=id=>document.getElementById(id);
+var ckT=0;let CK=Object.keys(CATS);const $=id=>document.getElementById(id);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ld=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k)||"null");return v===null?d:v}catch(e){return d}};
 const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -140,7 +140,7 @@ const col=i=>`hsl(${i*47%360} 55% 50%)`;
 const wopt=s=>WAL.map(w=>`<option ${w===s?"selected":""}>${esc(w)}</option>`).join("");
 function bal(){const b={};WAL.forEach(w=>b[w]=+opn[w]||0);data.forEach(r=>{const w=r.w||"Wallet";if(r.k==="e")b[w]-=r.a;else if(r.k==="i")b[w]+=r.a;else{b[r.w]-=r.a;b[r.w2]+=r.a}});return b}
 function sm(m){let te=0,ti=0,s=0;const e={},sb={};data.forEach(r=>{if(!per(r.d).startsWith(m))return;if(r.k==="e"){te+=r.a;e[r.m]=(e[r.m]||0)+r.a;const k=r.m+"|"+r.s;sb[k]=(sb[k]||0)+r.a}else if(r.k==="i"){ti+=r.a;if((r.w||"Wallet")!=="Wallet")s+=r.a}else if(r.w==="Wallet"&&r.w2!=="Wallet")s+=r.a;else if(r.w!=="Wallet"&&r.w2==="Wallet")s-=r.a});return{te,ti,s,e,sb}}
-function sheet(h){$("sb").innerHTML=h;$("sh").classList.remove("hide")}
+function sheet(h){if($("sh").classList.contains("hide"))ckT=Date.now();$("sb").innerHTML=h;$("sh").classList.remove("hide")}
 function closeS(){$("sh").classList.add("hide")}
 function add(o){data.push({id:Date.now()+Math.random(),...o});save();beep();render()}
 function shift(n){M=pv(M,-n);render()}
@@ -321,19 +321,21 @@ async function xls(){let d=null;try{d=window.claude&&await claude.use("downloads
  const B=[["الشهر","البند الرئيسي","إجمالي المصروف"]].concat(Object.entries(sm2).sort().map(([k,v])=>[...k.split("|"),v]));
  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(A),"الحركات");XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(B),"ملخص شهري");const Z=[["المحفظة","رصيد افتتاحي","الهدف","النوع"]].concat(WAL.map(w=>[w,+opn[w]||0,+goal[w]||0,sav.includes(w)?"ادخار":"جاري"]));XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(Z),"إعدادات");
  try{await d.save({filename:"expenses.xlsx",data:new Blob([XLSX.write(wb,{type:"array",bookType:"xlsx"})])})}catch(e){}}
-let ct=null,ex="";const OPS="÷×−+-";
-const cv=s=>{s=s.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-");if(!/^[0-9+\-*/. ]+$/.test(s))return NaN;try{const v=Function('"use strict";return ('+s+')')();return isFinite(v)?Math.round(v*100)/100:NaN}catch(e){return NaN}};
-function calc(t){ct=t;ex=t.value||"";ckr();$("ck").classList.remove("hide")}
+let ct=null,ex="",fr=false;const OPS="÷×−+-";
+const cv=s=>{s=s.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-").replace(/[+\-*/.]+$/,"").replace(/(^|[^0-9.])0+(?=\d)/g,"$1");if(!/^[0-9+\-*/. ]+$/.test(s))return NaN;try{const v=Function('"use strict";return ('+s+')')();return isFinite(v)?Math.round(v*100)/100:NaN}catch(e){return NaN}};
+function calc(t){if($("ck").classList.contains("hide"))ckT=Date.now();ct=t;ex=t.value?String(t.value):"";fr=!!ex;ckr();$("ck").classList.remove("hide")}
 function ckr(){const v=cv(ex);$("cb").innerHTML=(ct&&ct.q?`<div class="mu" style="margin-bottom:8px;font-weight:600">${esc(q.m+(q.s?" / "+q.s:""))}</div>`:"")+`<div id="cd"><small>${!isNaN(v)&&/.[+\-×÷−]/.test(ex)?"= "+fmt(v):""}</small>${ex||"0"}</div><div class="kg">`+["C","⌫","±","÷","7","8","9","×","4","5","6","−","1","2","3","+","0",".","=","✓"].map(k=>`<button class="${"÷×−+".includes(k)?"op":k==="✓"?"ok":""}" onclick="kk('${k}')">${k}</button>`).join("")+"</div>"}
 function kk(k){
+ if(Date.now()-ckT<350)return;
  if(k==="C")ex="";
  else if(k==="⌫")ex=ex.slice(0,-1);
  else if(k==="±"){const v=cv(ex);if(!isNaN(v))ex=String(-v)}
- else if(k==="="){const v=cv(ex);if(!isNaN(v))ex=String(v)}
- else if(k==="✓"){const v=cv(ex);if(isNaN(v))return;ex="";$("ck").classList.add("hide");if(ct.q){qrec(v)}else ct.value=v;return}
- else if("÷×−+".includes(k)){if(!ex)ex=k==="−"?"-":"";else if(OPS.includes(ex.slice(-1)))ex=ex.slice(0,-1)+k;else ex+=k}
- else ex+=k;
+ else if(k==="="){const v=cv(ex);if(!isNaN(v)){ex=String(v);fr=true}}
+ else if(k==="✓"){const v=cv(ex);if(isNaN(v)||(ct.q&&v<=0))return;ex="";$("ck").classList.add("hide");if(ct.q){qrec(v)}else ct.value=v;return}
+ else if("÷×−+".includes(k)){fr=false;if(!ex)ex=k==="−"?"-":"";else if(OPS.includes(ex.slice(-1)))ex=ex.slice(0,-1)+k;else ex+=k}
+ else{if(fr){ex="";fr=false}if(k==="."&&/\.[0-9]*$/.test(ex))return;if(/^[0-9]$/.test(k)&&/(^|[^0-9.])0$/.test(ex))ex=ex.slice(0,-1);ex+=k}
  ckr()}
+document.addEventListener("click",e=>{if(Date.now()-ckT<350&&e.target.closest&&e.target.closest("#sh,#ck")){e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener("focusin",e=>{const t=e.target;if(t.matches&&t.matches("input[type=number]")){t.blur();calc(t)}});
 render();
 </script>
