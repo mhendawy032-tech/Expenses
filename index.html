@@ -212,9 +212,9 @@ function wedit(){const b=bal();sheet(`<h3 style="margin:0">رصيد Wallet</h3><
 function wsv2(){const v=parseFloat($("wv").value);if(isNaN(v))return;const b=bal();opn.Wallet=Math.round(((+opn.Wallet||0)+(v-b.Wallet))*100)/100;sv("mas_open",opn);closeS();render()}
 function inc(){sheet(`<h3 style="margin:0">إضافة دخل</h3><div class="row"><div><label>المبلغ</label><input id="na" type="number" inputmode="decimal"></div><div><label>التاريخ</label><input id="nd" type="date" value="${today}"></div></div><label>بند الدخل</label><select id="nm">${INC.map(k=>`<option>${esc(k)}</option>`).join("")}</select><label>المحفظة</label><select id="nw">${wopt("Wallet")}</select><label>ملاحظة</label><input id="nn"><button class="btn" onclick="ido()">حفظ الدخل</button>`)}
 function ido(){const a=parseFloat($("na").value);if(!a)return;add({k:"i",d:$("nd").value||today,a,m:$("nm").value,s:"",w:$("nw").value,n:$("nn").value});closeS()}
-let AT="s",SF="",SK=[];
-const sf=(k,n,t)=>`<div class="${SF===k?"on":""}" onclick="SF=SF==='${k}'?'':'${k}';render()" style="cursor:pointer"><span>${fmt(n)}</span>${t}</div>`;
-function slist(){if(!SF)return "";let pd="";
+let AT="s",SF="",SK=[],DC="",DK=[];
+const sf=(k,n,t)=>`<div class="${(SF||"e")===k?"on":""}" onclick="SF='${k}';DC='';render()" style="cursor:pointer"><span>${fmt(n)}</span>${t}</div>`;
+function slist(){if(!SF||SF==="e")return "";let pd="";
  const L=data.filter(r=>per(r.d).startsWith(SMK())&&(SF==="i"?r.k==="i":SF==="e"?r.k==="e":(r.k==="i"&&(r.w||"Wallet")!=="Wallet")||(r.k==="t"&&(r.w==="Wallet")!==(r.w2==="Wallet")))).sort((x,y)=>y.d.localeCompare(x.d)||y.id-x.id);
  return `<div class="day" style="margin:0 10px 10px">`+(L.map(r=>{const d=r.d!==pd?`<div class="dh" style="border:0;padding:4px 0 0">${r.d.slice(8)} / ${r.d.slice(5,7)} / ${r.d.slice(0,4)}</div>`:"";pd=r.d;return d+row(r)}).join("")||'<p class="mu" style="text-align:center">لا توجد حركات</p>')+"</div>"}
 let sty=ld("mas_sty",{"أنا|سجائر":1,"أنا|مقاهى":1,"أنا|كوره":1,"أنا|سفر":1,"أنا|افطار وماكولات خارج المنزل":1,"البيت|ماكولات بالخارج":1,"الأبناء|ألعاب وملاهى":1,"الأبناء|مصروف وحلويات":1,"الأبناء|اعياد ميلاد":1});
@@ -243,10 +243,12 @@ function ana2(){
   let nec=0,lx=0;Object.entries(c.sb).forEach(([k,v])=>{if(sty[k])lx+=v;else nec+=v});SK=[];
   const pr=n=>te?Math.round(n/te*100):0;
   h+=`<div class="s4">${sf("i",ti,"الدخل")}${sf("e",te,"المصاريف")}${sf("s",s,"المدخرات")}<div><span>${fmt(ti-te-s)}</span>المتبقي</div></div>${slist()}`;
+  if(!SF||SF==="e"){DK=ks;if(DC){const k=DC,subs=Object.entries(c.sb).filter(([x])=>x.startsWith(k+"|")).sort((x,y)=>y[1]-x[1]);
+   h+=`<div class="cr" onclick="DC='';render()" style="cursor:pointer"><span class="ch">›</span><i class="ic">${ICO[k]||"•"}</i><b style="flex:1">${esc(k)}</b><b>${fmt(c.e[k]||0)}</b></div>`+(subs.length?subs.map(([x,v])=>{const i=SK.push(x)-1;return `<div class="cr sub"><span class="bg ${sty[x]?"rd2":"bu"}" onclick="tg(${i})">${Math.round(v/(c.e[k]||1)*100)}%</span><span style="flex:1">${esc(x.split("|")[1])}</span><span>${fmt(v)}</span></div>`}).join("")+'<p class="mu" style="margin:10px;font-size:12px">اضغط على نسبة أي بند فرعي لتحويله بين ضروري (أزرق) وكمالي (أحمر).</p>':'<p class="mu" style="text-align:center;margin-top:20px">لا توجد مصروفات في هذا البند خلال الشهر المختار</p>')}else{
   h+=`<div class="sty"><span style="display:flex;align-items:center;gap:8px"><i class="bg bu" style="font-style:normal">${pr(nec)}%</i><b>الضروريات</b></span><span style="display:flex;align-items:center;gap:8px"><b>الكماليات</b><i class="bg rd2" style="font-style:normal">${pr(lx)}%</i></span></div><div class="tw"><i style="width:${pr(lx)}%;background:#c0414b"></i><i style="width:${pr(nec)}%;background:#1a3b8b"></i></div><div class="sty" style="margin-bottom:10px"><b>${fmt(nec)}</b><b>${fmt(lx)}</b></div>`;
-  h+=ks.map(k=>{const subs=Object.entries(c.sb).filter(([x])=>x.startsWith(k+"|")).sort((x,y)=>y[1]-x[1]),tl=subs.filter(([x])=>sty[x]).reduce((z,e)=>z+e[1],0);
-   return `<div class="cr"><span class="bg ${tl>c.e[k]/2?"rd2":"bu"}">${pr(c.e[k])}%</span><i class="ic">${ICO[k]||"•"}</i><b style="flex:1">${esc(k)}</b><b>${fmt(c.e[k])}</b></div>`+subs.map(([x,v])=>{const i=SK.push(x)-1;return `<div class="cr sub"><span class="bg ${sty[x]?"rd2":"bu"}" onclick="tg(${i})">${Math.round(v/(c.e[k]||1)*100)}%</span><span style="flex:1">${esc(x.split("|")[1])}</span><span>${fmt(v)}</span></div>`}).join("")}).join("")||'<p class="mu" style="text-align:center">لا توجد مصروفات</p>';
-  h+='<p class="mu" style="margin:10px;font-size:12px">اضغط على نسبة أي بند فرعي لتحويله بين ضروري (أزرق) وكمالي (أحمر).</p>';
+  h+=ks.map((k,ki)=>{const subs=Object.entries(c.sb).filter(([x])=>x.startsWith(k+"|")).sort((x,y)=>y[1]-x[1]),tl=subs.filter(([x])=>sty[x]).reduce((z,e)=>z+e[1],0);
+   return `<div class="cr" onclick="DC=DK[${ki}];render()" style="cursor:pointer"><span class="bg ${tl>c.e[k]/2?"rd2":"bu"}">${pr(c.e[k])}%</span><i class="ic">${ICO[k]||"•"}</i><b style="flex:1">${esc(k)}</b><b>${fmt(c.e[k])}</b><span class="ch">‹</span></div>`}).join("")||'<p class="mu" style="text-align:center">لا توجد مصروفات</p>';
+  h+='<p class="mu" style="margin:10px;font-size:12px">اضغط على أي بند رئيسي لعرض تحليله خلال الشهر المختار.</p>'}}
  }
  $("v").innerHTML=h}
 let TH=ld("mas_th","a"),CAL=ld("mas_cal","g"),NL=ld("mas_nl","l"),SD=ld("mas_sd",1),SND=ld("mas_snd",false),REM=ld("mas_rem",false),HC=ld("mas_hc",""),PIN=ld("mas_pin",""),com=ld("mas_com",[]);
