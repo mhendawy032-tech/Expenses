@@ -167,14 +167,16 @@ function main(){const c=sm(M),rs=data.filter(r=>r.k==="e"&&per(r.d)===M&&(!QS||[
  $("v").innerHTML=h}
 let pm=0,pa="",QS="";
 function pkh(mi){const k=CK[mi],ai=t=>pa===t?`<div class="ai"><input id="pn" placeholder="${t==="m"?"بند رئيسي جديد":"بند فرعي جديد"}"><button onclick="padd()">+</button></div>`:`<button class="ab" onclick="pa='${t}';pick(${mi})">${t==="m"?"إضافة بند رئيسي":"إضافة بند فرعي"}</button>`;
- return `<div class="pk"><div class="pc">${ai("m")}${CK.map((x,i)=>`<div class="pi ${i===mi?"on":""}" onclick="pa='';pick(${i})"><i class="ic">${ICO[x]||"•"}</i>${esc(x)}</div>`).join("")}</div><div class="pc">${ai("s")}${(CATS[k]||[]).map((x,j)=>`<div class="pi ${q.m===k&&q.s===x?"on":""}" onclick="sel(${mi},${j})">${esc(x)}</div>`).join("")}</div></div>`}
-function padd(){const v=$("pn").value.trim();if(v){if(pa==="m"){if(!CATS[v]){CATS[v]=[v];CK=Object.keys(CATS);sv("mas_cats",CATS);pm=CK.indexOf(v)}}else{const k=CK[pm];if(k&&!CATS[k].includes(v)){CATS[k].push(v);sv("mas_cats",CATS)}}}pa="";pick(pm)}
-function pick(mi){const t=q.k;if(mi==null)mi=Math.max(0,CK.indexOf(q.m));pm=mi;
+ return `<div class="pk"><div class="pc">${ai("m")}${CK.map((x,i)=>`<div class="pi ${i===mi?"on":""}" onclick="pa='';dflt(${i})"><i class="ic">${ICO[x]||"•"}</i>${esc(x)}</div>`).join("")}</div><div class="pc">${ai("s")}${(CATS[k]||[]).map((x,j)=>`<div class="pi ${q.m===k&&q.s===x?"on":""}" onclick="sel(${mi},${j})">${esc(x)}</div>`).join("")}</div></div>${q.m&&q.s?`<button class="btn" onclick="pgo()">متابعة: ${esc(q.m)} / ${esc(q.s)}</button>`:""}`}
+function dflt(i){const k=CK[i];if(q.m!==k){q.m=k;q.s=(CATS[k]||[])[0]||""}pick(i)}
+function pgo(){const mi=CK.indexOf(q.m),j=(CATS[q.m]||[]).indexOf(q.s);if(mi<0||j<0)return;sel(mi,j)}
+function padd(){const v=$("pn").value.trim();if(v){if(pa==="m"){if(!CATS[v]){CATS[v]=[v];CK=Object.keys(CATS);sv("mas_cats",CATS);pm=CK.indexOf(v)}}else{const k=CK[pm];if(k&&!CATS[k].includes(v)){CATS[k].push(v);sv("mas_cats",CATS)}}}const wm=pa==="m";pa="";if(wm&&CK[pm])dflt(pm);else pick(pm)}
+function pick(mi){const t=q.k;if(mi==null)mi=Math.max(0,CK.indexOf(q.m));pm=mi;const pc0=document.querySelector("#sb .pk .pc"),vis=!$("sh").classList.contains("hide")&&pc0,s0=vis?pc0.scrollTop:0;
  let h=`<div class="row"><div><label>المحفظة</label><select onchange="q.w=this.value">${wopt(q.w)}</select></div><div><label>التاريخ</label><input type="date" value="${q.d}" onchange="q.d=this.value"></div></div>`;
  if(t==="i")h+=INC.map((x,i)=>`<div class="li" onclick="sel(${i})">${x}</div>`).join("");
  else h+=pkh(mi);
  
- sheet(h);if(pa)$("pn").focus()}
+ sheet(h);{const c=document.querySelector("#sb .pk .pc"),on=c&&c.querySelector(".pi.on");if(c){if(vis)c.scrollTop=s0;else if(on)c.scrollTop+=on.getBoundingClientRect().top-c.getBoundingClientRect().top-c.clientHeight/2+on.offsetHeight/2}}if(pa)$("pn").focus()}
 function sel(a,b){pa="";if(q.k==="i"){q.m=INC[a];q.s=""}else{q.m=CK[a];q.s=CATS[CK[a]][b]}
  $("qc").textContent=q.k==="e"?q.m+" / "+q.s:q.m;$("qc").classList.add("sl");closeS();calc({value:"",q:1})}
 function qrec(a){if(!a||!q.m)return;M=per(q.d);add({k:q.k,d:q.d,a,m:q.m,s:q.s,w:q.w,n:""});q={k:"e",m:"",s:"",w:"Wallet",d:today};$("qc").textContent="اختر بند الصرف";$("qc").classList.remove("sl")}
@@ -248,7 +250,7 @@ function ana2(){
  }
  $("v").innerHTML=h}
 let TH=ld("mas_th","a"),CAL=ld("mas_cal","g"),NL=ld("mas_nl","l"),SD=ld("mas_sd",1),SND=ld("mas_snd",false),REM=ld("mas_rem",false),HC=ld("mas_hc",""),PIN=ld("mas_pin",""),com=ld("mas_com",[]);
-{const cc=ld("mas_cats",null);if(cc){CATS=cc;CK=Object.keys(CATS)}const ci=ld("mas_inc",null);if(Array.isArray(ci))INC=ci}
+{const cc=ld("mas_cats",null);if(cc){CATS=cc;CK=Object.keys(CATS)}{const ORD=["أنا","البيت","الأبناء","م. المدام","سيارة","مناسبات الالسن","المصاريف البنكيه","مناسبات وزيارات","النقطه","خيري"],o={};ORD.forEach(k=>{if(CATS[k])o[k]=CATS[k]});Object.keys(CATS).forEach(k=>{if(!o[k])o[k]=CATS[k]});CATS=o;CK=Object.keys(CATS);if(CATS["أنا"]&&CATS["أنا"].includes("سجائر"))CATS["أنا"]=["سجائر",...CATS["أنا"].filter(x=>x!=="سجائر")]}const ci=ld("mas_inc",null);if(Array.isArray(ci))INC=ci}
 const per=d=>{if(SD<=1)return d.slice(0,7);const y=+d.slice(0,4),m=+d.slice(5,7),st=Math.min(SD,new Date(y,m,0).getDate());return +d.slice(8)>=st?pv(d.slice(0,7),-1):d.slice(0,7)};
 const pleft=(y,m)=>{const e=SD<=1?new Date(y,m,0):new Date(y,m-1,Math.min(SD,new Date(y,m,0).getDate())-1),n=new Date();n.setHours(0,0,0,0);return Math.round((e-n)/864e5)};
 M=per(today);
