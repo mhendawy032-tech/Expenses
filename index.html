@@ -104,6 +104,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}input[type=num
 .kg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;direction:ltr}.kg button{padding:14px 0;font:inherit;font-size:20px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;cursor:pointer}.kg .op{color:var(--bl);font-weight:700}.kg .ok{background:var(--hd);color:#fff;border-color:var(--hd)}.note{background:var(--card);border-radius:8px;padding:10px;font-size:13px}
 #v{min-height:800px}
 body,input,select,button,textarea,option{text-transform:uppercase}
+#qc,#qc.sl{background:var(--hd);color:#fff;border-color:var(--hd)}
+.hb.wl{position:relative}.hb.wl span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;font-weight:700;opacity:1}
+.st{grid-template-columns:repeat(4,1fr)}.st b{font-size:16px}.st>div[onclick]{cursor:pointer}
 </style>
 </head>
 <body>
@@ -156,7 +159,7 @@ function render(){
  $("ht").textContent=V==="m"?"EXP":V==="a"?"إحصائيات "+(YR?M.slice(0,4):mlab()):V==="b"?"الرصيد":V==="g"?"الإعدادات":"المدخرات";
  $("hb").style.visibility=$("hg").style.visibility="hidden";$("hb").textContent=V==="m"?"◔":"›";$("hb").onclick=()=>{V=V==="m"?"a":"m";render()};
  $("pl").classList.toggle("hide",V!=="m");
- $("pl").innerHTML=`<div class="hb" onclick="go('b')"><span>Wallet</span><b>${fmt(b.Wallet)}</b></div><div class="hb" onclick="go('s')"><span>المدخرات</span><b>${fmt(tS+tC)}</b></div>`;
+ $("pl").innerHTML=`<div class="hb wl" onclick="go('b')"><span>Wallet</span><b>${fmt(b.Wallet)}</b></div><div class="hb" onclick="go('s')"><span>المدخرات</span><b>${fmt(tS+tC)}</b></div>`;
  $("bar").classList.toggle("hide",V!=="m");
  $("tb").innerHTML=[["m","🏠","الرئيسية"],["a","📊","الإحصائيات"],["s","💰","المدخرات"],["g","⚙️","الإعدادات"]].map(([k,i,t])=>`<button class="${V===k?"on":""}" onclick="go('${k}')"><i>${i}</i>${t}</button>`).join("");
  V==="m"?main():V==="a"?ana2():V==="b"?bals(b):V==="g"?gset():savs(b)}
@@ -164,12 +167,13 @@ function row(r){const t=r.k==="t",i=r.k==="i",ic=t?"⇄":i?"💵":(ICO[r.m]||"�
  return `<div class="rw" onclick="ed('${r.id}')"><i class="ic">${ic}</i><div class="tx"><b>${esc(title)}</b><small>${t?"":esc(r.w||"Wallet")}${r.n?" · "+esc(r.n):""}</small></div><b class="am ${i?"in":""}">${i&&r.a>0?"+":""}${fmt(r.a)}</b><span class="ch">‹</span></div>`}
 function main(){const c=sm(M),rs=data.filter(r=>r.k==="e"&&per(r.d)===M&&(!QS||mt([r.m,r.s,r.n,r.w,r.a],QS))).sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id),days={};
  rs.forEach(r=>(days[r.d]=days[r.d]||[]).push(r));
- let h=mnav()+(REM&&M===per(today)&&!data.some(r=>r.k==="e"&&r.d===today)?'<div class="note" style="margin:10px">🔔 لم تسجّل أي مصروف اليوم</div>':"")+`<div class="st"><div><b>${fmt(c.te)}</b><span>المصاريف</span></div><div><b>${fmt(c.s)}</b><span>الادخار</span></div><div><b>${fmt(c.ti-c.te-c.s)}</b><span>المتبقي من الدخل</span></div></div>`;
+ let h=mnav()+(REM&&M===per(today)&&!data.some(r=>r.k==="e"&&r.d===today)?'<div class="note" style="margin:10px">🔔 لم تسجّل أي مصروف اليوم</div>':"")+`<div class="st"><div onclick="dtl('i')"><b>${fmt(c.ti)}</b><span>الدخل</span></div><div onclick="dtl('e')"><b>${fmt(c.te)}</b><span>المصاريف</span></div><div onclick="dtl('s')"><b>${fmt(c.s)}</b><span>الادخار</span></div><div><b>${fmt(c.ti-c.te-c.s)}</b><span>المتبقي</span></div></div>`;
  h+=`<div style="margin:0 10px"><input placeholder="🔍 بحث في الحركات (بند، ملاحظة، محفظة، مبلغ)" value="${esc(QS)}" onchange="QS=this.value.trim();render()"></div>`+Object.keys(days).map(d=>`<div class="day"><div class="dh"><span>${dl(d)}</span><span class="pill">${fmt(days[d].filter(r=>r.k==="e").reduce((s,r)=>s+r.a,0))}</span></div>${days[d].map(row).join("")}</div>`).join("")||'<p class="mu" style="text-align:center;margin-top:30px">لا توجد حركات في هذا الشهر</p>';
  $("v").innerHTML=h}
 let pm=0,pa="",QS="",QB="",QV="";
 const nrm=t=>String(t==null?"":t).toLowerCase().replace(/[أإآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");
 const mt=(a,q)=>{const h=nrm(a.join(" "));return nrm(q).split(/\s+/).filter(Boolean).every(w=>h.includes(w))};
+function dtl(f){QS=QB=QV="";YR=false;DC="";SF=f;AT="d";V="a";render()}
 function go(k){if(k!==V){QS=QB=QV="";AT="s";SF="";DC="";YR=false;CR={t:"e",m:"",s:"",f:"",to:""};M=per(today)}V=k;render()}
 function pkh(mi){const k=CK[mi],ai=t=>pa===t?`<div class="ai"><input id="pn" placeholder="${t==="m"?"بند رئيسي جديد":"بند فرعي جديد"}"><button onclick="padd()">+</button></div>`:`<button class="ab" onclick="pa='${t}';pick(${mi})">${t==="m"?"إضافة بند رئيسي":"إضافة بند فرعي"}</button>`;
  return `<div class="pk"><div class="pc">${ai("m")}${CK.map((x,i)=>`<div class="pi ${i===mi?"on":""}" onclick="pa='';dflt(${i})"><i class="ic">${ICO[x]||"•"}</i>${esc(x)}</div>`).join("")}</div><div class="pc">${ai("s")}${(CATS[k]||[]).map((x,j)=>`<div class="pi ${q.m===k&&q.s===x?"on":""}" onclick="sel(${mi},${j})">${esc(x)}</div>`).join("")}</div></div>${q.m&&q.s?`<button class="btn" onclick="pgo()">متابعة: ${esc(q.m)} / ${esc(q.s)}</button>`:""}`}
