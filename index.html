@@ -112,7 +112,7 @@ body,input,select,button,textarea,option{text-transform:uppercase}
 <body>
 <header><div class="hr"><button id="hb"></button><h1 id="ht"></h1><button id="hg" onclick="go('g')">⚙</button></div><div id="pl" class="pls"></div></header>
 <div id="v"></div>
-<div id="bar"><button id="qc" onclick="pick()">اختر بند الصرف</button></div>
+<div id="bar"><button id="qc" onclick="exa()">اختر بند الصرف</button></div>
 <nav id="tb"></nav>
 <div id="sh" class="hide" onclick="if(event.target===this)closeS()"><div id="sb"></div></div>
 <div id="ck" class="hide" onclick="if(event.target===this&&Date.now()-ckT>350)this.classList.add('hide')"><div id="cb"></div></div>
@@ -220,6 +220,9 @@ function bals(b){const tC=b.Wallet,days={};
 function wedit(){const b=bal();sheet(`<h3 style="margin:0">رصيد Wallet</h3><label>الرصيد الحالي</label><input id="wv" type="number" inputmode="decimal" value="${Math.round(b.Wallet*100)/100}"><button class="btn" onclick="wsv2()">حفظ</button>`)}
 function wsv2(){const v=parseFloat($("wv").value);if(isNaN(v))return;const b=bal();opn.Wallet=Math.round(((+opn.Wallet||0)+(v-b.Wallet))*100)/100;sv("mas_open",opn);closeS();render()}
 function inc(){sheet(`<h3 style="margin:0">إضافة دخل</h3><div class="row"><div><label>المبلغ</label><input id="na" type="number" inputmode="decimal"></div><div><label>التاريخ</label><input id="nd" type="date" value="${today}"></div></div><label>بند الدخل</label><select id="nm">${INC.map(k=>`<option>${esc(k)}</option>`).join("")}</select><label>المحفظة</label><select id="nw">${wopt("Wallet")}</select><label>ملاحظة</label><input id="nn"><button class="btn" onclick="ido()">حفظ الدخل</button>`)}
+function exa(){sheet(`<h3 style="margin:0">إضافة مصروف</h3><div class="row"><div><label>المبلغ</label><input id="xa" type="number" inputmode="decimal"></div><div><label>التاريخ</label><input id="xd" type="date" value="${today}"></div></div><label>البند الرئيسي</label><select id="xm" onchange="exs()">${CK.map(k=>`<option>${esc(k)}</option>`).join("")}</select><label>البند الفرعي</label><select id="xs"></select><label>المحفظة</label><select id="xw">${wopt("Wallet")}</select><label>ملاحظة</label><input id="xn"><button class="btn" onclick="exo()">حفظ المصروف</button>`);exs()}
+function exs(){$("xs").innerHTML=(CATS[$("xm").value]||[]).map(x=>`<option>${esc(x)}</option>`).join("")}
+function exo(){const a=parseFloat($("xa").value);if(!a||!$("xs").value)return;const d=$("xd").value||today;M=per(d);add({k:"e",d,a,m:$("xm").value,s:$("xs").value,w:$("xw").value,n:$("xn").value});closeS()}
 function ido(){const a=parseFloat($("na").value);if(!a)return;add({k:"i",d:$("nd").value||today,a,m:$("nm").value,s:"",w:$("nw").value,n:$("nn").value});closeS()}
 let AT="s",SF="",SK=[],DC="",DK=[];
 const sf=(k,n,t)=>`<div class="${(SF||"e")===k?"on":""}" onclick="SF='${k}';DC='';render()" style="cursor:pointer"><span>${fmt(n)}</span>${t}</div>`;
@@ -329,13 +332,19 @@ function imp(m){const f=$("xf");f.value="";f.onchange=async()=>{const file=f.fil
   else{const ex=new Set(data.map(key));out.filter(o=>!ex.has(key(o))).forEach(o=>{data.push(mkid(o));n++})}
   save();render();msg.textContent="تم استيراد "+n+" حركة"+(skip?" (تخطي "+skip+" صف غير صالح)":"")+(m===1?" مع الإعدادات":"")
  }catch(e){msg.textContent="تعذرت قراءة الملف"}};f.click()}
-async function xls(){let d=null;try{d=window.claude&&await claude.use("downloads")}catch(e){}
- if(!d||!window.XLSX){$("xm2").textContent="التصدير متاح فقط من الرابط المنشور على Claude.";return}
+async function deliver(blob,name){const m=$("xm2");
+ let d=null;try{d=window.claude&&await claude.use("downloads")}catch(e){}
+ if(d){try{await d.save({filename:name,data:blob});return}catch(e){if(e&&e.code==="declined")return}}
+ try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==="AbortError")return}
+ try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);return}catch(e){}
+ m.textContent="تعذّر التصدير على هذا الجهاز. افتح الصفحة من المتصفح أو من تطبيق Claude وجرّب تاني."}
+async function xls(){
+ if(!window.XLSX){$("xm2").textContent="مكتبة Excel غير متاحة حاليًا. تأكد من الاتصال بالإنترنت.";return}
  const A=[["النوع","التاريخ","البند الرئيسي","البند الفرعي","المبلغ","ملاحظة","المحفظة"]].concat(data.slice().sort((a,b)=>a.d.localeCompare(b.d)).map(r=>[r.k==="e"?"مصروف":r.k==="i"?"دخل":"تحويل",r.d,r.m,r.s,r.a,r.n,r.w||"Wallet"]));
  const sm2={};data.filter(r=>r.k==="e").forEach(r=>{const k=r.d.slice(0,7)+"|"+r.m;sm2[k]=(sm2[k]||0)+r.a});
  const B=[["الشهر","البند الرئيسي","إجمالي المصروف"]].concat(Object.entries(sm2).sort().map(([k,v])=>[...k.split("|"),v]));
  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(A),"الحركات");XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(B),"ملخص شهري");const Z=[["المحفظة","رصيد افتتاحي","الهدف","النوع"]].concat(WAL.map(w=>[w,+opn[w]||0,+goal[w]||0,sav.includes(w)?"ادخار":"جاري"]));XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(Z),"إعدادات");
- try{await d.save({filename:"expenses.xlsx",data:new Blob([XLSX.write(wb,{type:"array",bookType:"xlsx"})])})}catch(e){}}
+ try{await deliver(new Blob([XLSX.write(wb,{type:"array",bookType:"xlsx"})],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),"expenses.xlsx")}catch(e){$("xm2").textContent="حصل خطأ أثناء إنشاء الملف."}}
 let ct=null,ex="",fr=false;const OPS="÷×−+-";
 const cv=s=>{s=s.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-").replace(/[+\-*/.]+$/,"").replace(/(^|[^0-9.])0+(?=\d)/g,"$1");if(!/^[0-9+\-*/. ]+$/.test(s))return NaN;try{const v=Function('"use strict";return ('+s+')')();return isFinite(v)?Math.round(v*100)/100:NaN}catch(e){return NaN}};
 function calc(t){if($("ck").classList.contains("hide"))ckT=Date.now();ct=t;ex=t.value?String(t.value):"";fr=!!ex;ckr();$("ck").classList.remove("hide")}
