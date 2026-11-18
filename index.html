@@ -588,10 +588,10 @@ function kk(k){
  ckr()}
 document.addEventListener("click",e=>{if(Date.now()-ckT<350&&e.target.closest&&e.target.closest("#sh,#ck")){e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener("focusin",e=>{const t=e.target;if(t.matches&&t.matches("input[type=number]")){t.blur();calc(t)}});
-{const lq=window.matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)"),lh=e=>{if(e.matches&&V!=="m"){closeS();$("ck").classList.add("hide");const m=M,y=YR;go("m");M=m;YR=y;render()}};
+{const lq=window.matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)"),lh=e=>{if(e.matches&&V!=="m"){closeS();$("ck").classList.add("hide");const m=M,y=YR;go("m");M=m;YR=y;render()}else if(!e.matches&&V==="m"){const m=M,y=YR;go("e");M=m;YR=y;render();window.scrollTo(0,0)}};
  if(lq.addEventListener)lq.addEventListener("change",lh);else if(lq.addListener)lq.addListener(lh)}
 /* كل ضغطة على زر أو بند ترجّع الصفحة لأولها */
-document.addEventListener("click",e=>{const t=e.target&&e.target.closest?e.target.closest("button,[onclick],.pi,.card,.hb,.row,.item,a,summary"):null;if(!t||e.target.closest("input,select,textarea,label"))return;setTimeout(()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0},0)});
+document.addEventListener("click",e=>{const t=e.target&&e.target.closest?e.target.closest("button,[onclick],.pi,.card,.hb,.row,.item,a,summary"):null;if(!t||e.target.closest("input,select,textarea,label,details,.st-ch,[onclick^=\"nto(\"],[onclick^=\"cto(\"],[onclick^=\"sto(\"]"))return;setTimeout(()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0},0)});
 V="e";render();window.scrollTo(0,0);
 </script>
 </body>
