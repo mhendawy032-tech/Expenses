@@ -592,6 +592,8 @@ document.addEventListener("focusin",e=>{const t=e.target;if(t.matches&&t.matches
  if(lq.addEventListener)lq.addEventListener("change",lh);else if(lq.addListener)lq.addListener(lh)}
 /* كل ضغطة على زر أو بند ترجّع الصفحة لأولها */
 document.addEventListener("click",e=>{const t=e.target&&e.target.closest?e.target.closest("button,[onclick],.pi,.card,.hb,.row,.item,a,summary"):null;if(!t||e.target.closest("input,select,textarea,label,details,.st-ch,[onclick^=\"nto(\"],[onclick^=\"cto(\"],[onclick^=\"sto(\"]"))return;setTimeout(()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0},0)});
+/* الضروريات والكماليات بالطول، والرجوع للرئيسية بالعرض (لو الموبيل كان بالعرض وقت الدخول) */
+{const mq=window.matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)"),so=window.screen&&screen.orientation,lk=t=>{try{const r=so&&so.lock&&so.lock(t);if(r&&r.catch)r.catch(()=>{})}catch(_){}},ul=()=>{try{so&&so.unlock&&so.unlock()}catch(_){}};let pv="e",was=false;const r0=render;render=function(){const r=r0.apply(this,arguments),pr=pv;if(V!==pr){pv=V;if(V==="n"&&pr!=="n"){if(mq.matches){was=true;lk("portrait")}}else if(pr==="n"&&was){was=false;lk("landscape");setTimeout(ul,1500)}}return r}}
 V="e";render();window.scrollTo(0,0);
 </script>
 </body>
