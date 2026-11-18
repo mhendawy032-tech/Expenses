@@ -170,14 +170,14 @@ body,input,select,button,textarea,option{text-transform:uppercase}
 .st-del{width:100%;border:0;background:none;color:var(--rd);font:inherit;font-size:13px;padding:8px;border-radius:10px;cursor:pointer}
 .st-wal{background:var(--bg);border-radius:12px;padding:10px 12px 12px;margin-bottom:8px}
 .st-seg{display:flex;margin-top:8px;background:var(--card);border-radius:10px;padding:3px;gap:3px}.st-seg button{flex:1;border:0;background:none;color:var(--tx);font:inherit;font-size:14px;padding:8px;border-radius:8px;cursor:pointer}.st-seg .on{background:var(--hd);color:#fff;font-weight:600}
-#sb .st-one{display:flex;gap:12px;align-items:center;margin-top:8px}
-#sb .st-one>input{flex:1;min-width:0;height:44px;min-height:44px;padding:0 14px;border-radius:12px}
+#sb .st-one{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:8px}
+#sb .st-one>input{flex:1 1 150px;min-width:0;height:44px;min-height:44px;padding:0 14px;border-radius:12px}
 #sb .st-ck{display:flex;align-items:center;gap:6px;white-space:nowrap;margin:0;font-size:14px;color:var(--tx);cursor:pointer}
 .st-ck input{width:22px;height:22px;padding:0;flex:none;accent-color:var(--hd)}
 </style>
 </head>
 <body>
-<header><div class="hr"><button id="hb"></button><h1 id="ht"></h1><button id="hg" onclick="go(V==='g'?'m':'g')">⚙</button></div><div id="pl" class="pls"></div></header>
+<header><div class="hr"><button id="hb"></button><h1 id="ht"></h1><button id="hg" onclick="go(V==='g'?'e':'g')">⚙</button></div><div id="pl" class="pls"></div></header>
 <div id="v"></div>
 <div id="bar"><button id="qc" onclick="exa()">اختر بند الصرف</button></div>
 <div id="bar2"><button id="qt" onclick="tr(0)">⇄ تحويل مبلغ</button></div>
@@ -206,7 +206,7 @@ const today=new Date().toISOString().slice(0,10);
 let data=ld("mas_data",[]),opn=ld("mas_open",{}),sav=ld("mas_sav",WAL.slice(5)),goal=ld("mas_goal",{});
 ld("mas_wx",[]).forEach(n=>{if(n&&!WAL.includes(n))WAL.push(n)});
 let V="e",M=today.slice(0,7),q={k:"e",m:"",s:"",w:"Wallet",d:today};
-const save=()=>sv("mas_data",data);
+const save=()=>sv("mas_data",data);let ARC=ld("mas_arc",[]);const arMoved=w=>data.some(r=>per(r.d).startsWith(SMK())&&((r.w||"Wallet")===w||(r.k==="t"&&r.w2===w))),arVis=w=>!ARC.includes(w)||arMoved(w);
 const pv=(m,n=1)=>{const[y,mm]=m.split("-").map(Number),d=new Date(y,mm-1-n,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
 const pc=(a,b)=>b?(a>=b?"▲ ":"▼ ")+Math.abs((a-b)/b*100).toFixed(0)+"%":"—";
 const col=i=>`hsl(${i*47%360} 55% 50%)`;
@@ -302,9 +302,9 @@ function wpg(){const w=WAL[WI],u=SMK(),v=bal(u)[w];
 let SO={g:false,c:false};
 const hd=(k,t,v)=>`<h3 onclick="SO.${k}=!SO.${k};render()" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span style="flex:1">${t}</span><b class="${v<0?"exp":"bl"}">${fmt(v)}</b><span style="width:18px;text-align:center">${SO[k]?"▾":"◂"}</span></h3>`;
 let SG="",SGS=0;
-function savs(b){b=bal(SMK());const S=WAL.filter(w=>sav.includes(w)),C=WAL.filter(w=>!sav.includes(w)&&w!=="Wallet");const tG=S.reduce((s,w)=>s+b[w],0),tC=C.reduce((s,w)=>s+b[w],0),per2=YR?M.slice(0,4):mlab();
+function savs(b){b=bal(SMK());const S=WAL.filter(w=>sav.includes(w)),C=WAL.filter(w=>!sav.includes(w)&&w!=="Wallet"),S2=S.filter(arVis),C2=C.filter(arVis);const tG=S.reduce((s,w)=>s+b[w],0),tC=C.reduce((s,w)=>s+b[w],0),per2=YR?M.slice(0,4):mlab();
  if(SG){const sh=(id,t,v,L,em)=>`<h3 id="${id}" style="display:flex;align-items:center;gap:8px;scroll-margin-top:90px"><span style="flex:1">${t}</span><b class="${v<0?"exp":"bl"}">${fmt(v)}</b></h3>`+(L.map(w=>card(w,b[w])).join("")||`<p class="mu" style="text-align:center">${em}</p>`);
-  $("v").innerHTML=snav()+`<div style="margin:4px 10px 6px"><div class="sty" style="border-radius:12px;font-size:16px"><b>مجموع المدخرات · حتى ${per2}</b><b class="bl">${fmt(tG+tC)}</b></div></div>`+sh("sg-c","الحسابات الجارية",tC,C,"لا توجد حسابات")+sh("sg-g","الأهداف المالية والمدخرات",tG,S,"لا توجد أهداف");
+  $("v").innerHTML=snav()+`<div style="margin:4px 10px 6px"><div class="sty" style="border-radius:12px;font-size:16px"><b>مجموع المدخرات · حتى ${per2}</b><b class="bl">${fmt(tG+tC)}</b></div></div>`+sh("sg-c","الحسابات الجارية",tC,C2,"لا توجد حسابات")+sh("sg-g","الأهداف المالية والمدخرات",tG,S2,"لا توجد أهداف");
   if(SGS){SGS=0;const el=$("sg-"+SG);if(el)el.scrollIntoView()}return}
  const ta=Math.max(0,tG),tb=Math.max(0,tC),tt=ta+tb,pr=n=>tt?Math.round(n/tt*100):0,pa=pr(ta),pb=pr(tb),
  col=(k,x)=>`<div onclick="SG='${k}';SGS=0;render();window.scrollTo(0,0)" style="flex:1;min-width:0;text-align:center;cursor:pointer"><div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px"><i style="width:9px;height:9px;border-radius:50%;background:${x[2]};display:inline-block;flex:none"></i><span style="opacity:.85">${x[0]}</span><b style="color:${x[2]};font-size:18px">${pr(Math.max(0,x[1]))}%</b></div><div style="font-size:12px;opacity:.75">${fmt(x[1])}</div></div>`,
@@ -431,9 +431,10 @@ function cnew(){const a=parseFloat($("ca").value);if(!a||!$("csb").value)return;
 function cdl(i){com.splice(i,1);sv("mas_com",com);comm()}
 let SVO=null;
 let SDK=null;
-function savm(){const mx=ld("mas_wx",[]),ws=WAL.map((w,i)=>[w,i]).filter(([w])=>w!=="Wallet");ssheet(`<h3 style="margin:0">🏦 بنود المدخرات</h3><div class="st-add"><input id="svw" placeholder="أضف بند ادخار جديد" ${stEnter("savadd()")}><button type="button" onclick="savadd()" aria-label="إضافة">＋</button></div>`+(ws.map(([w,i])=>{const s=sav.includes(w),o=SVO===w,cu=mx.includes(w),used=data.some(r=>r.w===w||r.w2===w);return `<div class="st-cat${o?" open":""}"><div class="st-ch" onclick="sto(${i})"><span class="st-ic">🏦</span><b>${esc(w)}</b><span class="st-n">${s?"ادخار / هدف":"جاري"}</span><span class="st-chev">‹</span></div>`+(o?`<div class="st-cb"><div class="st-one"><input id="so${i}" type="number" inputmode="decimal" value="${opn[w]||""}" placeholder="الرصيد الافتتاحي" onchange="swo(${i})"><label class="st-ck"><input type="checkbox" ${s?"checked":""} onchange="swt(${i},this.checked?1:0)"><span>هدف ادخار</span></label></div>${cu?(used?'<p class="mu" style="font-size:12px;text-align:center;margin:8px 0 0">عليه حركات، فمينفعش يتحذف</p>':`<button type="button" class="st-del" style="margin-top:6px" onclick="savdel(${i})">${SDK===w?"اضغط مرة أخرى لتأكيد الحذف":"🗑 حذف هذا البند"}</button>`):""}</div>`:"")+`</div>`}).join("")||'<p class="mu" style="text-align:center">لا توجد بنود</p>'))}
+function savm(){const mx=ld("mas_wx",[]),ws=WAL.map((w,i)=>[w,i]).filter(([w])=>w!=="Wallet");ssheet(`<h3 style="margin:0">🏦 بنود المدخرات</h3><div class="st-add"><input id="svw" placeholder="أضف بند ادخار جديد" ${stEnter("savadd()")}><button type="button" onclick="savadd()" aria-label="إضافة">＋</button></div>`+(ws.map(([w,i])=>{const s=sav.includes(w),o=SVO===w,cu=mx.includes(w),used=data.some(r=>r.w===w||r.w2===w);return `<div class="st-cat${o?" open":""}"><div class="st-ch" onclick="sto(${i})"><span class="st-ic">🏦</span><b>${esc(w)}</b><span class="st-n">${ARC.includes(w)?"📦 ":""}${s?"ادخار / هدف":"جاري"}</span><span class="st-chev">‹</span></div>`+(o?`<div class="st-cb"><div class="st-one"><input id="so${i}" type="number" inputmode="decimal" value="${opn[w]||""}" placeholder="الرصيد الافتتاحي" onchange="swo(${i})"><label class="st-ck"><input type="checkbox" ${s?"checked":""} onchange="swt(${i},this.checked?1:0)"><span>هدف ادخار</span></label><label class="st-ck"><input type="checkbox" ${ARC.includes(w)?"checked":""} onchange="swa(${i},this.checked?1:0)"><span>أرشفة</span></label></div>${cu?(used?'<p class="mu" style="font-size:12px;text-align:center;margin:8px 0 0">عليه حركات، فمينفعش يتحذف</p>':`<button type="button" class="st-del" style="margin-top:6px" onclick="savdel(${i})">${SDK===w?"اضغط مرة أخرى لتأكيد الحذف":"🗑 حذف هذا البند"}</button>`):""}</div>`:"")+`</div>`}).join("")||'<p class="mu" style="text-align:center">لا توجد بنود</p>'))}
 function savadd(){const e=$("svw"),v=e.value.trim();if(!v||WAL.includes(v))return;WAL.push(v);const mx=ld("mas_wx",[]);mx.push(v);sv("mas_wx",mx);sav.push(v);sv("mas_sav",sav);SVO=v;savm();render();const n=$("svw");if(n)n.focus()}
-function savdel(i){const w=WAL[i];if(SDK!==w){SDK=w;savm();setTimeout(()=>{if(SDK===w){SDK=null;const b=document.querySelector(".st-del");if(b)b.textContent="🗑 حذف هذا البند"}},3500);return}SDK=null;WAL.splice(i,1);sv("mas_wx",ld("mas_wx",[]).filter(x=>x!==w));sav=sav.filter(x=>x!==w);delete opn[w];delete goal[w];sv("mas_sav",sav);sv("mas_open",opn);sv("mas_goal",goal);if(typeof WI!=="undefined"){if(WI>i)WI--;else if(WI===i)WI=0}SVO=null;savm();render()}
+function savdel(i){const w=WAL[i];if(SDK!==w){SDK=w;savm();setTimeout(()=>{if(SDK===w){SDK=null;const b=document.querySelector(".st-del");if(b)b.textContent="🗑 حذف هذا البند"}},3500);return}SDK=null;WAL.splice(i,1);sv("mas_wx",ld("mas_wx",[]).filter(x=>x!==w));sav=sav.filter(x=>x!==w);ARC=ARC.filter(x=>x!==w);sv("mas_arc",ARC);delete opn[w];delete goal[w];sv("mas_sav",sav);sv("mas_open",opn);sv("mas_goal",goal);if(typeof WI!=="undefined"){if(WI>i)WI--;else if(WI===i)WI=0}SVO=null;savm();render()}
+function swa(i,t){const w=WAL[i];ARC=ARC.filter(x=>x!==w);if(t)ARC.push(w);sv("mas_arc",ARC);savm();render()}
 function sto(i){const w=WAL[i];SVO=SVO===w?null:w;savm()}
 function swt(i,t){const w=WAL[i];sav=sav.filter(x=>x!==w);if(t)sav.push(w);sv("mas_sav",sav);savm();render()}
 function swo(i){const w=WAL[i];opn[w]=$("so"+i).value;sv("mas_open",opn);render()}
